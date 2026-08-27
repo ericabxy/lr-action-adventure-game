@@ -10,7 +10,7 @@
 
 #define VIDEO_WIDTH 160
 #define VIDEO_HEIGHT 120
-#define VIDEO_PIXELS VIDEO_WIDTH * VIDEO_HEIGHT
+#define VIDEO_SIZE VIDEO_WIDTH * VIDEO_HEIGHT
 
 static uint32_t *frame_buf;
 static struct retro_log_callback logging;
@@ -29,7 +29,7 @@ void retro_init(void)
 {
    game_initialize(VIDEO_WIDTH, VIDEO_HEIGHT);
 
-   frame_buf = calloc(VIDEO_PIXELS, sizeof(uint32_t));
+   frame_buf = calloc(VIDEO_SIZE, sizeof(uint32_t));
 }
 
 void retro_deinit(void)
@@ -154,7 +154,8 @@ void retro_run(void)
    game_step();
 
    update_input();
-   game_render_screen(frame_buf, VIDEO_WIDTH, VIDEO_PIXELS);
+   game_render_background(frame_buf, VIDEO_WIDTH, VIDEO_SIZE);
+   game_render_characters(frame_buf, VIDEO_WIDTH, VIDEO_SIZE);
    audio_callback();
 
    video_cb(frame_buf, VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_WIDTH << 2);
