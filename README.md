@@ -1,7 +1,6 @@
 # LR Action Adventure Game
 
-![Latest example screenshot.]('/screenshots/LR Action Adventure Game-260828-160032.png')
-
+![Latest example screenshot.](https://raw.githubusercontent.com/ericabxy/lr-action-adventure-game/refs/heads/main/screenshots/LR%20Action%20Adventure%20Game-260828-160032.png)
 _LR Action Adventure Game_ is a LibRetro core inspired by Warren Robinett's 1980 game _Adventure_.
 
 ## Building
