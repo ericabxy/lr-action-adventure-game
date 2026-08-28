@@ -8,8 +8,8 @@
 #include "libretro.h"
 #include "game.h"
 
-#define VIDEO_WIDTH 160
-#define VIDEO_HEIGHT 120
+#define VIDEO_WIDTH GAME_VIDEO_WIDTH
+#define VIDEO_HEIGHT GAME_VIDEO_HEIGHT
 #define VIDEO_SIZE VIDEO_WIDTH * VIDEO_HEIGHT
 
 static uint32_t *frame_buf;
@@ -51,7 +51,7 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 void retro_get_system_info(struct retro_system_info *info)
 {
    memset(info, 0, sizeof(*info));
-   info->library_name     = "Retro Tennis";
+   info->library_name     = "LR Action Adventure Game";
    info->library_version  = "v1";
    info->need_fullpath    = false;
    info->valid_extensions = NULL;
