@@ -1,7 +1,7 @@
 #include <stdint.h>
 
+#include "gamedef.h"
 #include "rectangle.h"
-#include "cga_color.h"
 
 void rectangle_render(uint32_t *buf, unsigned stride, unsigned pixels, int origin_x, int origin_y, int width, int height, int color)
 {

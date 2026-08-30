@@ -7,10 +7,9 @@
 
 #include "libretro.h"
 #include "game.h"
+#include "gamedef.h"
 
-#define VIDEO_WIDTH GAME_VIDEO_WIDTH
-#define VIDEO_HEIGHT GAME_VIDEO_HEIGHT
-#define VIDEO_SIZE VIDEO_WIDTH * VIDEO_HEIGHT
+#define FRAME_BUFFER_SIZE GAMEDEF_SCREENWIDTH * GAMEDEF_SCREENHEIGHT
 
 static uint32_t *frame_buf;
 static struct retro_log_callback logging;
@@ -27,9 +26,9 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 
 void retro_init(void)
 {
-   game_initialize(VIDEO_WIDTH, VIDEO_HEIGHT);
+   game_initialize();
 
-   frame_buf = calloc(VIDEO_SIZE, sizeof(uint32_t));
+   frame_buf = calloc(FRAME_BUFFER_SIZE, sizeof(uint32_t));
 }
 
 void retro_deinit(void)
@@ -74,10 +73,10 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
    };
 
    info->geometry = (struct retro_game_geometry) {
-      .base_width   = VIDEO_WIDTH,
-      .base_height  = VIDEO_HEIGHT,
-      .max_width    = VIDEO_WIDTH,
-      .max_height   = VIDEO_HEIGHT,
+      .base_width   = GAMEDEF_SCREENWIDTH,
+      .base_height  = GAMEDEF_SCREENHEIGHT,
+      .max_width    = GAMEDEF_SCREENWIDTH,
+      .max_height   = GAMEDEF_SCREENHEIGHT,
       .aspect_ratio = aspect,
    };
 }
@@ -151,14 +150,14 @@ static void audio_callback(void)
 
 void retro_run(void)
 {
-   game_step();
+   game_advance_frame();
 
    update_input();
-   game_render_background(frame_buf, VIDEO_WIDTH, VIDEO_SIZE);
-   game_render_characters(frame_buf, VIDEO_WIDTH, VIDEO_SIZE);
+   game_render_background(frame_buf, GAMEDEF_SCREENWIDTH, FRAME_BUFFER_SIZE);
+   game_render_characters(frame_buf, GAMEDEF_SCREENWIDTH, FRAME_BUFFER_SIZE);
    audio_callback();
 
-   video_cb(frame_buf, VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_WIDTH << 2);
+   video_cb(frame_buf, GAMEDEF_SCREENWIDTH, GAMEDEF_SCREENHEIGHT, GAMEDEF_SCREENWIDTH << 2);
 
    bool updated = false;
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
@@ -200,17 +199,16 @@ bool retro_load_game_special(unsigned type, const struct retro_game_info *info, 
 
 size_t retro_serialize_size(void)
 {
-   return 2;
+   return GAMEDEF_RAM_SIZE;
 }
 
 bool retro_serialize(void *data_, size_t size)
 {
-   if (size < 2)
+   if (size < GAMEDEF_RAM_SIZE)
       return false;
 
    uint8_t *data = data_;
-   data[0] = x_coord;
-   data[1] = y_coord;
+   game_save_data(data);
    return true;
 }
 

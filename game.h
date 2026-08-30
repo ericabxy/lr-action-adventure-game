@@ -1,14 +1,23 @@
-#define GAME_VIDEO_WIDTH 160
-#define GAME_VIDEO_HEIGHT 128
-#define GAME_UI_LEFT 0
-#define GAME_UI_TOP 0
-#define GAME_UI_WIDTH GAME_VIDEO_WIDTH
-#define GAME_UI_HEIGHT 16
-#define GAME_UI_BLIP_WIDTH 2
-#define GAME_UI_BLIP_HEIGHT 1
+#ifndef __GAME__
+#define __GAME__
 
-void game_step(void);
-void game_initialize(int x, int y);
+struct joystick_t {
+   unsigned int up : 1;
+   unsigned int down : 1;
+   unsigned int left : 1;
+   unsigned int right : 1;
+   unsigned int fire : 1;
+   unsigned int strafe : 1;
+   unsigned int use : 1;
+   unsigned int speed : 1;
+};
+
+void game_advance_frame(void);
+void game_initialize(void);
 void game_joystick_update(unsigned int up, unsigned int down, unsigned int left, unsigned int right);
 void game_render_background(uint32_t *buf, unsigned stride, unsigned pixels);
 void game_render_characters(uint32_t *buf, unsigned stride, unsigned pixels);
+void game_save_data(uint8_t *data);
+void game_load_data(uint8_t *data);
+
+#endif
