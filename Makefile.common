@@ -1,2 +1,2 @@
-SOURCES_C   := $(CORE_DIR)/libretro.c $(CORE_DIR)/game.c $(CORE_DIR)/pattern.c $(CORE_DIR)/rectangle.c
+SOURCES_C   := $(CORE_DIR)/libretro.c $(CORE_DIR)/game.c $(CORE_DIR)/pattern.c $(CORE_DIR)/r_shape.c
 SOURCES_CXX := 

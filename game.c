@@ -17,7 +17,7 @@
 #include "game.h"
 #include "gamedef.h"
 #include "pattern.h"
-#include "rectangle.h"
+#include "r_shape.h"
 
 #define LEFT 0
 #define TOP 0
@@ -35,50 +35,68 @@
 
 struct game_state_t game_state;
 struct joystick_t joystick1;
+struct rectangle_t avatar;
+struct rectangle_t hud_rect;
+struct rectangle_t radar_rect;
+struct rectangle_t radarblip_rect;
 static int joystick_x;
 static int joystick_y;
-static int avatar_x;
-static int avatar_y;
-static char avatar_loc;
+static char current_room_number;
 static char game_state_array[GAMEDEF_RAM_SIZE];
 
 void game_initialize(void)
 {
-   avatar_x = AVATAR_INIT_X;
-   avatar_y = AVATAR_INIT_Y;
-   avatar_loc = WORLD_LENGTH / 2 - WORLD_WIDTH / 2;
+   current_room_number = WORLD_LENGTH / 2 - WORLD_WIDTH / 2;
    joystick_x = 0;
    joystick_y = 0;
+   avatar.xcoord = AVATAR_INIT_X;
+   avatar.ycoord = AVATAR_INIT_Y;
+   avatar.width = AVATAR_SIZE;
+   avatar.height = AVATAR_SIZE;
+   avatar.color = CGA_COLOR_YELLOW;
+   hud_rect.xcoord = 0;
+   hud_rect.ycoord = 0;
+   hud_rect.width = GAMEDEF_SCREENWIDTH;
+   hud_rect.height = GAMEDEF_SCREENHEIGHT / 7;
+   hud_rect.color = CGA_COLOR_BLACK;
+   radar_rect.xcoord = LEFT + 4;
+   radar_rect.ycoord = TOP;
+   radar_rect.width = WORLD_WIDTH * GAMEDEF_SCREENWIDTH / 80;
+   radar_rect.height = WORLD_LENGTH / WORLD_WIDTH * GAMEDEF_SCREENHEIGHT / 112;
+   radar_rect.color = CGA_COLOR_BLUE;
+   radarblip_rect.width = GAMEDEF_SCREENWIDTH / 80;
+   radarblip_rect.height = GAMEDEF_SCREENHEIGHT / 112;
+   radarblip_rect.color = CGA_COLOR_LIGHT_BLUE;
 }
 
 void game_advance_frame(void)
 {
-   //avatar_x += joystick_x;
-   //avatar_y += joystick_y;
+   //avatar.x += joystick_x;
+   //avatar.y += joystick_y;
    // PlayerCollision.
    if (joystick1.right)
-      avatar_x ++;
+      avatar.xcoord ++;
    if (joystick1.left)
-      avatar_x --;
+      avatar.xcoord --;
    if (joystick1.up)
-      avatar_y --;
+      avatar.ycoord --;
    if (joystick1.down)
-      avatar_y ++;
+      avatar.ycoord ++;
    // TODO: Handle opening doors here.
-   if (avatar_x < SCENE_LEFT_EDGE) {
-      avatar_x = SCENE_RIGHT_EDGE - AVATAR_SIZE;
-      avatar_loc--;
-   } else if (avatar_x + AVATAR_SIZE > SCENE_RIGHT_EDGE) {
-      avatar_x = SCENE_LEFT_EDGE;
-      avatar_loc++;
+   if (avatar.xcoord < SCENE_LEFT_EDGE) {
+      avatar.xcoord = SCENE_RIGHT_EDGE - avatar.width;
+      current_room_number--;
+   } else if (avatar.xcoord + avatar.width > SCENE_RIGHT_EDGE) {
+      avatar.xcoord = SCENE_LEFT_EDGE;
+      current_room_number++;
    }
 
-   if (avatar_y < SCENE_TOP_EDGE) {
-      avatar_y = SCENE_BOTTOM_EDGE - AVATAR_SIZE;
-      avatar_loc -= WORLD_WIDTH;
-   } else if (avatar_y > SCENE_BOTTOM_EDGE - AVATAR_SIZE) {
-      avatar_y = SCENE_TOP_EDGE;
-      avatar_loc += WORLD_WIDTH;
+   if (avatar.ycoord < SCENE_TOP_EDGE) {
+      avatar.ycoord = SCENE_BOTTOM_EDGE - avatar.height;
+      current_room_number -= WORLD_WIDTH;
+   } else if (avatar.ycoord > SCENE_BOTTOM_EDGE - avatar.height) {
+      avatar.ycoord = SCENE_TOP_EDGE;
+      current_room_number += WORLD_WIDTH;
    }
 }
 
@@ -94,22 +112,22 @@ void game_joystick_update(unsigned int up, unsigned int down, unsigned int left,
 
 void game_render_background(uint32_t *buf, unsigned stride, unsigned pixels)
 {
-   int minimap_x = avatar_loc % WORLD_WIDTH;
-   int minimap_y = avatar_loc / WORLD_WIDTH;
+   radarblip_rect.xcoord = (current_room_number % WORLD_WIDTH) * GAMEDEF_SCREENWIDTH / 80 + 4;
+   radarblip_rect.ycoord = current_room_number / WORLD_WIDTH;
 
    // Draw background.
    pattern_render_check(buf, stride, pixels);
    // Draw user interface.
-   rectangle_render(buf, stride, pixels, LEFT, TOP, GAMEDEF_SCREENWIDTH, GAMEDEF_SCREENHEIGHT / 7, CGA_COLOR_BLACK);
+   R_DrawRectangle(buf, stride, pixels, hud_rect);
    // Draw radars.
-   rectangle_render(buf, stride, pixels, LEFT + 4, TOP, WORLD_WIDTH * GAMEDEF_SCREENWIDTH / 80, WORLD_LENGTH / WORLD_WIDTH * GAMEDEF_SCREENHEIGHT / 112, CGA_COLOR_BLUE);
+   R_DrawRectangle(buf, stride, pixels, radar_rect);
    // Draw radar blips.
-   rectangle_render(buf, stride, pixels, minimap_x * GAMEDEF_SCREENWIDTH / 80 + 4, minimap_y, GAMEDEF_SCREENWIDTH / 80, GAMEDEF_SCREENHEIGHT / 112, CGA_COLOR_LIGHT_BLUE);
+   R_DrawRectangle(buf, stride, pixels, radarblip_rect);
 }
 
 void game_render_characters(uint32_t *buf, unsigned stride, unsigned pixels)
 {
-   rectangle_render(buf, stride, pixels, avatar_x, avatar_y, AVATAR_SIZE, AVATAR_SIZE, CGA_COLOR_YELLOW);
+   R_DrawRectangle(buf, stride, pixels, avatar);
 }
 
 void game_save_data(uint8_t *data)

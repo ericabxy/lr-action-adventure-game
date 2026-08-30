@@ -18,7 +18,7 @@
 #define __R_DEFS__
 
 struct rectangle_t {
-   char[4] mode;
+   char mode[4];
    int xcoord;
    int ycoord;
    int width;
