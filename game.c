@@ -112,11 +112,28 @@ void game_joystick_update(unsigned int up, unsigned int down, unsigned int left,
 
 void game_render_background(uint32_t *buf, unsigned stride, unsigned pixels)
 {
+   uint64_t playfield[14] = {
+      0b0000000000000000000000000000000000000000,
+      0b0000000000000000000000000000000000000000,
+      0b1111001100111111110000111111110011001111,
+      0b0000001100000011110000111100000011000000,
+      0b0000001100000011110000111100000011000000,
+      0b1111111111110011110000111100111111111111,
+      0b1111111111110011110000111100111111111111,
+      0b0000000000110011110000111100110000000000,
+      0b0000000000110011110000111100110000000000,
+      0b1111001100110011110000111100110011001111,
+      0b1111001100110011110000111100110011001111,
+      0b0000001100110011000000001100110011000000,
+      0b0000001100110011000000001100110011000000,
+      0b1111111100110011000000001100110011111111
+   };
+
    radarblip_rect.xcoord = (current_room_number % WORLD_WIDTH) * GAMEDEF_SCREENWIDTH / 80 + 4;
    radarblip_rect.ycoord = current_room_number / WORLD_WIDTH;
 
    // Draw background.
-   pattern_render_check(buf, stride, pixels);
+   pattern_render_playfield(buf, stride, pixels, playfield);
    // Draw user interface.
    R_DrawRectangle(buf, stride, pixels, hud_rect);
    // Draw radars.

@@ -84,4 +84,7 @@ struct object_t {
    uint8_t size;  // Store9.
 };
 
+struct roomrow_t {
+};
+
 #endif
