@@ -34,19 +34,19 @@ void R_DrawChecks(uint32_t *buf, unsigned stride, unsigned pixels)
    }
 }
 
-void R_DrawPlayfield(uint32_t *buf, unsigned stride, unsigned pixels, uint64_t *pattern)
+void R_DrawPlayfield(uint32_t *buf, unsigned stride, unsigned pixels, struct playfield_t playfield)
 {
    uint32_t *line   = buf;
-   line += stride * 16;
-
-   for (unsigned y = 16; y < pixels / stride; y++, line += stride)
+   // Traverse framebuffer and draw playfield pattern.
+   line += stride * playfield.yorigin;
+   for (unsigned y = playfield.yorigin; y < pixels / stride; y++, line += stride)
    {
-      unsigned index_y = y / 8;
-      for (unsigned x = 0; x < stride; x++)
+      unsigned index_y = y / playfield.tileheight;
+      for (unsigned x = playfield.xorigin; x < stride; x++)
       {
-         unsigned index_x = x / 4;
-         uint64_t mask = 0x8000000000 >> index_x;
-         line[x] = (mask & pattern[index_y % 14]) ? CGA_COLOR_LIGHT_GREEN : CGA_COLOR_LIGHT_GRAY;
+         unsigned index_x = x / playfield.tilewidth;
+         uint64_t mask = (1ULL << (playfield.ntiles - 1)) >> index_x;
+         line[x] = (mask & playfield.pattern[index_y % playfield.nlines]) ? CGA_COLOR_LIGHT_GREEN : CGA_COLOR_LIGHT_GRAY;
       }
    }
 }

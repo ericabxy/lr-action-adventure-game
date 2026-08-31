@@ -31,13 +31,17 @@
 #define AVATAR_INIT_Y (SCENE_BOTTOM_EDGE / 2) - (AVATAR_SIZE / 2)
 #define WORLD_LENGTH 256
 #define WORLD_WIDTH 16
+#define TILEWIDTH 4
+#define TILEHEIGHT 8
+#define BACKGROUND_LINES 14
 
 struct game_state_t game_state;
 struct joystick_t joystick1;
+struct playfield_t playfield;
 struct rectangle_t avatar;
 struct rectangle_t hud_rect;
 struct rectangle_t radar_rect;
-struct rectangle_t radarblip_rect;
+struct rectangle_t blip_rect;
 static int joystick_x;
 static int joystick_y;
 static char current_room_number;
@@ -63,9 +67,15 @@ void game_initialize(void)
    radar_rect.width = WORLD_WIDTH * GAMEDEF_SCREENWIDTH / 80;
    radar_rect.height = WORLD_LENGTH / WORLD_WIDTH * GAMEDEF_SCREENHEIGHT / 112;
    radar_rect.color = CGA_COLOR_BLUE;
-   radarblip_rect.width = GAMEDEF_SCREENWIDTH / 80;
-   radarblip_rect.height = GAMEDEF_SCREENHEIGHT / 112;
-   radarblip_rect.color = CGA_COLOR_LIGHT_BLUE;
+   blip_rect.width = GAMEDEF_SCREENWIDTH / 80;
+   blip_rect.height = GAMEDEF_SCREENHEIGHT / 112;
+   blip_rect.color = CGA_COLOR_LIGHT_BLUE;
+   playfield.xorigin = SCENE_LEFT_EDGE;
+   playfield.yorigin = SCENE_TOP_EDGE;
+   playfield.tilewidth = TILEWIDTH;
+   playfield.tileheight = TILEHEIGHT;
+   playfield.nlines = 14;
+   playfield.ntiles = 40;
 }
 
 void game_advance_frame(void)
@@ -111,7 +121,7 @@ void game_joystick_update(unsigned int up, unsigned int down, unsigned int left,
 
 void game_render_background(uint32_t *buf, unsigned stride, unsigned pixels)
 {
-   uint64_t playfield[14] = {
+   uint64_t pattern[14] = {
       0b0000000000000000000000000000000000000000,
       0b0000000000000000000000000000000000000000,
       0b1111001100111111110000111111110011001111,
@@ -127,21 +137,21 @@ void game_render_background(uint32_t *buf, unsigned stride, unsigned pixels)
       0b0000001100110011000000001100110011000000,
       0b1111111100110011000000001100110011111111
    };
-
-   radarblip_rect.xcoord = (current_room_number % WORLD_WIDTH) * GAMEDEF_SCREENWIDTH / 80 + 4;
-   radarblip_rect.ycoord = current_room_number / WORLD_WIDTH;
-
+   playfield.pattern = pattern;
    // Draw background.
    R_DrawPlayfield(buf, stride, pixels, playfield);
    // Draw radars.
    R_DrawRectangle(buf, stride, pixels, radar_rect);
-   // Draw radar blips.
-   R_DrawRectangle(buf, stride, pixels, radarblip_rect);
 }
 
 void game_render_characters(uint32_t *buf, unsigned stride, unsigned pixels)
 {
+   blip_rect.xcoord = (current_room_number % WORLD_WIDTH) * GAMEDEF_SCREENWIDTH / 80 + 4;
+   blip_rect.ycoord = current_room_number / WORLD_WIDTH;
+   // Draw the Man.
    R_DrawRectangle(buf, stride, pixels, avatar);
+   // Draw radar blips.
+   R_DrawRectangle(buf, stride, pixels, blip_rect);
 }
 
 void game_save_data(uint8_t *data)

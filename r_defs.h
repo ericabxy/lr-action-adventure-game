@@ -36,12 +36,6 @@
 #define CGA_COLOR_YELLOW 0xffff55
 #define CGA_COLOR_WHITE 0xffffff
 
-struct pattern_t {
-   int tilewidth;
-   int tileheight;
-   uint8_t *pattern;
-};
-
 struct rectangle_t {
    char mode[4];
    int xcoord;

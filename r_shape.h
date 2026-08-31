@@ -19,8 +19,19 @@
 
 #include "r_defs.h"
 
+#define UINT64_HIGH_BIT 0x8000000000000000
+
+struct playfield_t {
+   char mode[8];
+   int xorigin, yorigin;
+   unsigned int tilewidth;
+   unsigned int tileheight;
+   unsigned int ntiles, nlines;
+   uint64_t *pattern;
+};
+
 void R_DrawChecks(uint32_t *buf, unsigned stride, unsigned pixels);
-void R_DrawPlayfield(uint32_t *buf, unsigned stride, unsigned pixels, uint64_t *pattern);
+void R_DrawPlayfield(uint32_t *buf, unsigned stride, unsigned pixels, struct playfield_t playfield);
 void R_DrawRectangle(uint32_t *buf, unsigned stride, unsigned pixels, struct rectangle_t rectangle);
 
 #endif
