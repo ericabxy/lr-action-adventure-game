@@ -16,7 +16,6 @@
 
 #include "game.h"
 #include "gamedef.h"
-#include "pattern.h"
 #include "r_shape.h"
 
 #define LEFT 0
@@ -133,9 +132,7 @@ void game_render_background(uint32_t *buf, unsigned stride, unsigned pixels)
    radarblip_rect.ycoord = current_room_number / WORLD_WIDTH;
 
    // Draw background.
-   pattern_render_playfield(buf, stride, pixels, playfield);
-   // Draw user interface.
-   R_DrawRectangle(buf, stride, pixels, hud_rect);
+   R_DrawPlayfield(buf, stride, pixels, playfield);
    // Draw radars.
    R_DrawRectangle(buf, stride, pixels, radar_rect);
    // Draw radar blips.

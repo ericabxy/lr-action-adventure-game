@@ -19,6 +19,10 @@
 
 #include "r_defs.h"
 
+void R_DrawChecks(uint32_t *buf, unsigned stride, unsigned pixels);
+void R_DrawPlayfield(uint32_t *buf, unsigned stride, unsigned pixels, uint64_t *pattern);
 void R_DrawRectangle(uint32_t *buf, unsigned stride, unsigned pixels, struct rectangle_t rectangle);
 
 #endif
+
+/* EOF */
